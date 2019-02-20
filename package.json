@@ -1,0 +1,25 @@
+{
+  "name": "acra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "ssic": "node get-ssic.js",
+    "points": "node get-points.js",
+    "addresstopoint" : "node address-to-pointId.js",
+    "acra" : "node acra.js",
+    "acralive" : "node acra-live.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "convert-array-to-csv": "^1.0.4",
+    "convert-csv-to-array": "^1.0.2",
+    "node-fetch": "^2.3.0",
+    "node-geocoder": "^3.22.0"
+  },
+  "devDependencies": {
+    "csv-array": "0.0.22"
+  }
+}
