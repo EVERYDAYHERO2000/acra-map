@@ -409,7 +409,7 @@ function createMap(id, options, query, css){
     APP.status = true;
     if (!APP.data.years.length){
   
-    dataRequest('../data/acra-years.csv', function(_years) {
+    dataRequest('data/acra-years.csv', function(_years) {
         console.log('Years loaded');
         csvToObject(_years, function (a) {
           APP.data.years.push(a.year);
@@ -425,7 +425,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.points).length){
     
-  dataRequest('../data/points.csv', function(_points) {
+  dataRequest('data/points.csv', function(_points) {
       console.log('Points loaded');
       csvToObject(_points, function (a) {
         a.id *= 1;
@@ -442,7 +442,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.ssic).length){
   
-  dataRequest('../data/ssic.csv', function(_ssic) {
+  dataRequest('data/ssic.csv', function(_ssic) {
     console.log('SSIC loaded');
       csvToObject(_ssic, function (a) {
         a.id *= 1;
@@ -457,7 +457,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.acra).length){
   
-  dataRequest('../data/acra-live.csv', function(_acra) {
+  dataRequest('data/acra-live.csv', function(_acra) {
       console.log('Acra loaded');
       csvToObject(_acra, function (a) {
         //a.local = (a.local) ? 1 : 0;
