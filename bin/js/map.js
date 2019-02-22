@@ -182,7 +182,30 @@ function createMap(id, options, query, css){
       for (var p in mapQuery[i].points){
         var point = mapQuery[i].points[p];
         if (viewInfo.bounds.contains([point.lat, point.lon])) {
-          ctx.fillStyle = RgbToRgba( mapQuery[i].color, 0.36 );
+          
+          var opacity = (map._zoom < 14) ? (map._zoom < 5) ? 0.3 : 0.5 : 0.8;
+          
+          /*
+          var rad = ('0.0000'+(''+(i*3)))*1;
+          var offset = (function(x,y,r,i){
+            
+            return {
+              x: x + r * Math.sin(i * 2 * Math.PI / 100),
+              y: y + r * Math.cos(i * 2 * Math.PI / 100)
+            }
+            
+          })(point.lat, point.lon, rad, i);
+          
+          var rnd = getRandomInt(4, 8)
+          var rad = (map._zoom < 12)? (i*rnd)*0.0001 : (i*5)*0.00001;
+          var offset = 50;
+          var s = (i*offset * Math.PI / 100);
+          
+          var lat = point.lat + rad * Math.sin(s);
+		      var lon = point.lon + rad * Math.cos(s);
+          */
+          
+          ctx.fillStyle = RgbToRgba( mapQuery[i].color, opacity );
           var dot = viewInfo.layer._map.latLngToContainerPoint([point.lat, point.lon]);
           ctx.beginPath();
           ctx.arc(dot.x, dot.y, size[map._zoom].s, 0, Math.PI * 2);
@@ -191,7 +214,13 @@ function createMap(id, options, query, css){
       }
     }
          
-    ctx.closePath();     
+    ctx.closePath();
+    /*
+    var filter = new MedianFilter();
+    var imageData = ctx.getImageData(0, 0, viewInfo.canvas.width, viewInfo.canvas.height);
+    ctx.putImageData( filter.convertImage( imageData,viewInfo.canvas.width ,viewInfo.canvas.height),10,2);
+    */
+    
   }
 
   //Create query hash collection
@@ -409,7 +438,7 @@ function createMap(id, options, query, css){
     APP.status = true;
     if (!APP.data.years.length){
   
-    dataRequest('data/acra-years.csv', function(_years) {
+    dataRequest('../data/acra-years.csv', function(_years) {
         console.log('Years loaded');
         csvToObject(_years, function (a) {
           APP.data.years.push(a.year);
@@ -425,7 +454,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.points).length){
     
-  dataRequest('data/points.csv', function(_points) {
+  dataRequest('../data/points.csv', function(_points) {
       console.log('Points loaded');
       csvToObject(_points, function (a) {
         a.id *= 1;
@@ -442,7 +471,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.ssic).length){
   
-  dataRequest('data/ssic.csv', function(_ssic) {
+  dataRequest('../data/ssic.csv', function(_ssic) {
     console.log('SSIC loaded');
       csvToObject(_ssic, function (a) {
         a.id *= 1;
@@ -457,7 +486,7 @@ function createMap(id, options, query, css){
   
   if (!Object.keys(APP.data.acra).length){
   
-  dataRequest('data/acra-live.csv', function(_acra) {
+  dataRequest('../data/acra-live.csv', function(_acra) {
       console.log('Acra loaded');
       csvToObject(_acra, function (a) {
         //a.local = (a.local) ? 1 : 0;
