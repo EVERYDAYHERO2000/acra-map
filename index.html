@@ -6,10 +6,13 @@
  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
    integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
    crossorigin=""/>
+<link rel="stylesheet" href="/bin/css/charts.css" />  
+<script src="bin/js/charts.js"></script> 
 
 
 <!--<script src="/bin/js/app.js"></script>-->
 <!--<script src="/bin/js/load-data.js"></script>-->
+<script src="bin/js/filter.js"></script>
 <script src="bin/js/map.js"></script>
 
 
@@ -214,6 +217,28 @@
     fill: #fff;
     stroke: #fff;
     stroke-width: 1;
+  }
+  
+  .timeline {
+    height: 300px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    z-index: 1000;
+    position: none;
+  }
+  
+  .ct-label {
+    fill: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.4);
+  }
+  
+  foreignObject[y="270"] {
+    opacity: 0;
+  }
+  
+  foreignObject[y="270"]:nth-child(10n) {
+    opacity: 1;
   }
   
 </style>  

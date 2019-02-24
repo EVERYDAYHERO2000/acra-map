@@ -10,9 +10,10 @@ function createMap(id, options, query, css){
        },
        hash: {
          regdates: {},
-         timeline: {},
+         timeLine: {},
          ssic: {},
-         points: {}
+         points: {},
+         ssicByYears: {}
        },
        status : false 
      };
@@ -244,6 +245,7 @@ function createMap(id, options, query, css){
     }
     
     
+    
 
     var regex = new RegExp( tempRegex.join('|'), 'g');
     queryRegex = regex;
@@ -265,7 +267,68 @@ function createMap(id, options, query, css){
     //console.log(tempQuery)
     mapQuery = tempQuery;
     map.myCustomCanvasDraw.needRedraw();
+    createGraph();
   }
+  
+  
+  //create graph
+  function createGraph() {
+    var chart = new Chartist.Line('.timeline', {
+      labels: (function () {
+        var arr = [];
+        for (var i=0; i < APP.data.years.length; i++) {
+          arr.push(APP.data.years[i]);
+        }
+        
+        return arr;
+      })(),
+      series: (function () {
+        var querys = [];
+        for (var q=0; q<mapQuery.length;q++){
+          var query = []
+          var code = new RegExp(mapQuery[q].regex);
+          
+          for (var i in APP.hash.ssicByYears){
+            
+            var length = 0;
+            for (var s in APP.hash.ssicByYears[i]){
+              
+              if ( s.search(code) + 1 ){
+                 length += APP.hash.ssicByYears[i][s].length;
+              }
+        
+            }
+            query.push(length);
+            
+          }
+          querys.push(query);
+        }
+        
+        return querys;
+        
+
+      })()
+    }, {
+      fullWidth: true,
+      chartPadding: {
+        right: 40
+      }
+    });
+    
+    var newCSSRule = ''
+    $('#'+id).find('.ssic-control__color').each(function(i,e){
+      var color = $(e).find('div').css('background-color');
+      
+       newCSSRule += `#${id} .timeline .ct-series:nth-child(${i+1}) * { stroke: ${color}!important; }`;
+          
+    });
+    
+    $('.graph-css').remove();
+    $('head').append(`<style class="graph-css">${newCSSRule}</style>`)
+  }
+  
+  
+  
   
   map.setQuery = setQuery;
   
@@ -288,6 +351,8 @@ function createMap(id, options, query, css){
               </svg>
             </div>
         </div>`;
+    
+    
     
     var colorselect = (function(colors){
       var colorsarr = [];
@@ -315,7 +380,7 @@ function createMap(id, options, query, css){
       `<div class="controls">
         <div class="controls__list">${SSICControlsByQuery}</div>
         <div class="ssic-new-query">Add New Filter</div>
-      </div>`);
+      </div><div class="timeline"></div>`);
     
     
 
@@ -443,7 +508,8 @@ function createMap(id, options, query, css){
         csvToObject(_years, function (a) {
           APP.data.years.push(a.year);
           APP.hash.regdates[a.year] = {};
-          APP.hash.timeline[a.year] = {};
+          APP.hash.timeLine[a.year] = {};
+          APP.hash.ssicByYears[a.year] = {};
         }, function () {
           APP.data.years.sort();
           console.log('Years built');
@@ -477,7 +543,17 @@ function createMap(id, options, query, css){
         a.id *= 1;
         APP.data.ssic[a.id] = a;
         APP.hash.ssic[a.ssic] = [];
+        
+        for (var y in APP.hash.ssicByYears){
+          APP.hash.ssicByYears[y][a.ssic] = []; 
+        }
+        
+        
       }, function () {
+        
+        APP.data.ssic["null"] = [];
+        APP.hash.ssic["null"] = [];
+        
         console.log('SSIC built');
       });
   });
@@ -489,31 +565,36 @@ function createMap(id, options, query, css){
   dataRequest('data/acra-live.csv', function(_acra) {
       console.log('Acra loaded');
       csvToObject(_acra, function (a) {
+        
+       
+          
         //a.local = (a.local) ? 1 : 0;
-        a.ssic_1 = (a.ssic_1 in APP.data.ssic) ? APP.data.ssic[a.ssic_1] : null;
-        a.ssic_2 = (a.ssic_2 in APP.data.ssic) ? APP.data.ssic[a.ssic_2] : null;
+        a.ssic_1 = (a.ssic_1 in APP.data.ssic) ? APP.data.ssic[a.ssic_1] : {ssic: "null"};
+        a.ssic_2 = (a.ssic_2 in APP.data.ssic) ? APP.data.ssic[a.ssic_2] : {ssic:"null"};
         a.point = APP.data.points[a.point];
         APP.data.acra.push(a);
 
         
         //hashing
         
-        APP.hash.timeline[a.reg_date][a.point.id] = a;
+        APP.hash.timeLine[a.reg_date][a.point.id] = a;
         APP.hash.regdates[a.reg_date][a.point.id] = a;
         
-        for (y in APP.hash.timeline){
+        for (y in APP.hash.timeLine){
           if ( y*1 > a.reg_date*1 ){  
-            APP.hash.timeline[y][a.point.id] = a;
+            APP.hash.timeLine[y][a.point.id] = a;
           }  
         }
         
         APP.hash.points[a.point.id].push(a); 
 
         
-        if (a.ssic_1) APP.hash.ssic[a.ssic_1.ssic].push(a);
-        if (a.ssic_2) APP.hash.ssic[a.ssic_2.ssic].push(a);
-        //if (a.ssic_1) APP.hash.ssic[a.ssic_1.ssic] = pushData(APP.hash.ssic[a.ssic_1.ssic], a);
-        //if (a.ssic_2) APP.hash.ssic[a.ssic_2.ssic] = pushData(APP.hash.ssic[a.ssic_2.ssic], a);
+        APP.hash.ssic[a.ssic_1.ssic].push(a);
+        APP.hash.ssic[a.ssic_2.ssic].push(a);
+        
+        APP.hash.ssicByYears[a.reg_date][a.ssic_1.ssic] = pushData(APP.hash.ssicByYears[a.reg_date][a.ssic_1.ssic],a);
+        APP.hash.ssicByYears[a.reg_date][a.ssic_2.ssic] = pushData(APP.hash.ssicByYears[a.reg_date][a.ssic_2.ssic],a);
+        
         
       }, function () {
         console.log('Acra built');
