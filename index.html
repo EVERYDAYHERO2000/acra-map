@@ -10,11 +10,10 @@
 <script src="bin/js/charts.js"></script> 
 
 
-<!--<script src="/bin/js/app.js"></script>-->
-<!--<script src="/bin/js/load-data.js"></script>-->
-<script src="bin/js/filter.js"></script>
+
+
 <script src="bin/js/map.js"></script>
-<script src="./src/index.js"></script>
+
 
 <style>
   body {
@@ -49,19 +48,29 @@
   
 
 .spinner {
-  animation: rotate 2s linear infinite;
   z-index: 10000;
   position: absolute;
   top: 50vh;
-  left: 50vw;
-  width: 50px;
-  height: 50px;
-  border: 2px solid rgba(255,255,255,1);
-  border-radius: 50%;
-
+  left: calc(50vw - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  min-width: 300px;
+  width: 300px;
+  max-width: 300px;
 }
+  
+  .spinner__inner {
+    animation: rotate 2s linear infinite;
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(255,255,255,1);
+    border-radius: 50%;
+  }
  
-  .spinner:after {
+  .spinner__inner:after {
     position: absolute;
     content: '';
     width: 10px;
@@ -71,7 +80,30 @@
     transform-origin: center;
     transform: translate(5px);
   }  
+  
+  .spinner__text {
+    margin-top: 20px;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  
+  .spinner__text:after {
+    content: '...';
+    opacity: 1;
+    font-size: 18px;
+    letter-spacing: 2px;
+    animation: typing .5s .2s linear infinite;
+      
+  }
 
+  @keyframes typing {
+    
+    100% {
+      opacity: 0;
+    }
+  }  
+  
 
 @keyframes rotate {
   100% {
@@ -126,6 +158,9 @@
   .ssic-control__code {
     flex-grow: 1;
     position: relative;
+    display: flex;
+    align-content: center;
+    align-items: center;
   }
   
   .ssic-control__code input {
@@ -232,6 +267,56 @@
     pointer-events: none;
   }
   
+  .ct-point {
+    pointer-events: all;
+    cursor: pointer;
+    transition: all .2s ease;
+    transform-origin: center;
+  }
+  
+  .ct-point:hover {
+    stroke-width: 20px;
+  }
+  
+  .ct-point.focus {
+    stroke-width: 20px;
+  }
+  
+  .current-year {
+    position: fixed;
+    left: 50px;
+    bottom: 57px;
+    font-weight: 700;
+    font-size: 32px;
+    color: #fff;
+    letter-spacing: 2px;
+    z-index: 10000;
+  }
+  
+  .leaflet-touch .leaflet-bar {border:none}
+  
+  .leaflet-bar a {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    color: #fff;
+    background: none;
+    border: none;
+    font-size: 32px;
+    padding: 10px;
+  }
+
+  .leaflet-bar a:hover {
+    background: none;
+    color: #fff;
+    border: none;
+  }
+  
+  .leaflet-bar {
+    border: none;
+    box-shadow: none;
+  }
+  
   .ct-label {
     fill: rgba(255, 255, 255, 0.4);
     color: rgba(255, 255, 255, 0.4);
@@ -243,6 +328,24 @@
   
   foreignObject[y="270"]:nth-child(10n) {
     opacity: 1;
+  }
+  
+  .leaflet-touch .leaflet-bar a {
+    background: none;
+    color: #fff;
+    font-size: 32px;
+    padding: 10px;
+    border: none;
+  }
+  
+  .leaflet-top .leaflet-control {
+    margin-top: 5px;
+  }
+  .leaflet-left .leaflet-control {
+    margin-left: 5px;
+  }
+  .leaflet-control-pause {
+    opacity: .5;
   }
   
 </style>  
@@ -261,34 +364,13 @@ $(function () {
     zoom: 12,
     controls:true
   },[
-      {q:64,color:'rgb(0, 118, 255)'},//finance
-      {q:56,color:'rgb(255, 98, 0)'} //food
+      {q:64,color:'rgb(0, 118, 255)', text: 'Finance'},//finance
+      {q:56,color:'rgb(255, 98, 0)', text: 'Restaurants'} //food
   ],{
     width: '100%', 
     height: '100vh'
   });
-  /*
-  createMap('app2',{
-    lat:1.3585563850639484, 
-    lon: 103.79559874534608,
-    zoom: 10
-  },[{q:2,color:'rgb(255, 255, 255)'}],
-  {
-    width: '100%', 
-    height: '100vh'
-  });
-  
-  createMap('app3',{
-    lat:1.3585563850639484, 
-    lon: 103.79559874534608, 
-    zoom: 8,
-    controls:true
-  },[{q:90,color:'rgb(157, 0, 255)'}], 
-  {
-    width: '100%', 
-    height: '80vh'
-  });
-  */
+
 });
 </script>
 
