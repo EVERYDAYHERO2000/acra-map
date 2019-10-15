@@ -1,381 +1,440 @@
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet-src.js"></script>
-<script src="bin/js/L.canvasLayer.js"></script> 
+<html>
+
+<head>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet-src.js"></script>
+  <script src="bin/js/L.canvasLayer.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+  <link rel="stylesheet" href="bin/css/charts.css" />
+  <script src="bin/js/charts.js"></script>
+
+  <title>Business Activity Map</title>
 
 
- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-   crossorigin=""/>
-<link rel="stylesheet" href="bin/css/charts.css" />  
-<script src="bin/js/charts.js"></script> 
+  <script src="bin/js/map.js"></script>
 
 
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+    }
+
+    .map-app {
+      overflow: hidden;
+      max-width: 100vw;
+      position: relative;
+      background: #12161a;
+    }
+
+    .map {
+      background: #12161a;
+    }
+
+    .leaflet-tile-container {
+      filter: sepia(1) hue-rotate(170deg) brightness(0.7);
+    }
+
+    #date {
+      position: absolute;
+      color: #fff;
+      font-weight: 700;
+      font-size: 60px;
+      bottom: 30px;
+      left: 30px;
+      z-index: 10000;
+    }
 
 
-<script src="bin/js/map.js"></script>
+    .spinner {
+      z-index: 10000;
+      position: absolute;
+      top: 50vh;
+      left: calc(50vw - 150px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-content: center;
+      align-items: center;
+      min-width: 300px;
+      width: 300px;
+      max-width: 300px;
+    }
+
+    .spinner__inner {
+      animation: rotate 2s linear infinite;
+      width: 50px;
+      height: 50px;
+      border: 2px solid rgba(255, 255, 255, 1);
+      border-radius: 50%;
+    }
+
+    .spinner__inner:after {
+      position: absolute;
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 255, 255, 1);
+      border-radius: 50%;
+      transform-origin: center;
+      transform: translate(5px);
+    }
+
+    .spinner__text {
+      margin-top: 20px;
+      color: #fff;
+      text-align: center;
+      letter-spacing: 1px;
+      transform: translateX(8px);
+    }
+
+    .spinner__text:after {
+      content: '...';
+      opacity: 1;
+      font-size: 18px;
+      letter-spacing: 2px;
+      animation: typing .5s .2s linear infinite;
+
+    }
+
+    @keyframes typing {
+
+      100% {
+        opacity: 0;
+      }
+    }
 
 
-<style>
-  body {
-    margin:0;
-    padding:0;
-    font-family: sans-serif;
-  }
-  
-  .map-app {
-    overflow: hidden;
-    max-width: 100vw;
-    position: relative;
-    background: #12161a;
-  }
-  
-  .map {
-    background: #12161a;
-  }
-  
-  .leaflet-tile-container {
-    filter: sepia(1) hue-rotate(170deg) brightness(0.7);
-  }
-  #date {
-    position:absolute;
-    color: #fff;
-    font-weight: 700;
-    font-size: 60px;
-    bottom: 30px;
-    left: 30px;
-    z-index: 10000;
-  }
-  
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
-.spinner {
-  z-index: 10000;
-  position: absolute;
-  top: 50vh;
-  left: calc(50vw - 150px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-  min-width: 300px;
-  width: 300px;
-  max-width: 300px;
-}
-  
-  .spinner__inner {
-    animation: rotate 2s linear infinite;
-    width: 50px;
-    height: 50px;
-    border: 2px solid rgba(255,255,255,1);
-    border-radius: 50%;
-  }
- 
-  .spinner__inner:after {
-    position: absolute;
-    content: '';
-    width: 10px;
-    height: 10px;
-    background: rgba(255,255,255,1);
-    border-radius: 50%;
-    transform-origin: center;
-    transform: translate(5px);
-  }  
-  
-  .spinner__text {
-    margin-top: 20px;
-    color: #fff;
-    text-align: center;
-    letter-spacing: 1px;
-  }
-  
-  .spinner__text:after {
-    content: '...';
-    opacity: 1;
-    font-size: 18px;
-    letter-spacing: 2px;
-    animation: typing .5s .2s linear infinite;
-      
-  }
 
-  @keyframes typing {
-    
-    100% {
+    .controls {
+      width: 350px;
+      height: 100%;
+      position: absolute;
+      overflow: scroll;
+      box-sizing: border-box;
+      right: 0;
+      top: 0;
+      background-color: rgba(9, 12, 15, 0);
+      z-index: 10000;
+      transform: translateX(290px);
+      transition: all .3s ease;
+    }
+
+    .controls:hover {
+      transform: translateX(0px);
+      background-color: rgba(9, 12, 15, 0.83);
+      transition: all .4s ease;
+    }
+
+    .leaflet-container .leaflet-control-attribution {
+      background-color: rgba(30, 30, 30, 0.78);
+      color: #fff;
+    }
+
+    .leaflet-container .leaflet-control-attribution a {
+      color: #166dfd;
+    }
+
+    .ssic-control {
+      color: rgba(255, 255, 255, 1);
+      display: flex;
+      justify-content: space-between;
+      box-sizing: border-box;
+      background-color: transparent;
+      position: relative;
+    }
+
+    .ssic-control:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all .2s;
+    }
+
+
+    .ssic-control__code {
+      flex-grow: 1;
+      position: relative;
+      display: flex;
+      align-content: center;
+      align-items: center;
+    }
+
+    .ssic-control__code input {
+      display: block;
+      padding: 20px 0;
+      background: none;
+      width: 100%;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+
+    .ssic-control__color {
+      padding: 20px;
+      cursor: pointer;
+    }
+
+
+    .ssic-control__color div {
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      background-color: #fff;
+    }
+
+    .ssic-control__remove {
+      padding: 20px;
+      transition: all .2s;
+      cursor: pointer;
       opacity: 0;
     }
-  }  
-  
 
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
+    .ssic-control:hover .ssic-control__remove {
+      opacity: 1;
+    }
 
-  
-  .controls {
-    width: 350px;
-    height: 100%;
-    position: absolute;
-    overflow: scroll;
-    box-sizing: border-box;
-    right: 0;
-    top:0;
-    background-color: rgba(9, 12, 15, 0);
-    z-index: 10000;
-    transform: translateX(290px);
-    transition: all .3s ease;
-  }
-  .controls:hover {
-    transform: translateX(0px);
-    background-color: rgba(9, 12, 15, 0.83);
-    transition: all .4s ease;
-  }
-  
-  .leaflet-container .leaflet-control-attribution {
-    background-color: rgba(30, 30, 30, 0.78);
-    color: #fff;
-  }
-  
-  .leaflet-container .leaflet-control-attribution a {
-    color: #166dfd;
-  }
-  
-  .ssic-control {
-    color:rgba(255,255,255,1);
-    display: flex;
-    justify-content: space-between;
-    box-sizing: border-box;
-    background-color: transparent; 
-    position: relative;
-  }
-  
-  .ssic-control:hover {
-    background-color: rgba(255,255,255,0.1);
-    transition: all .2s;
-  }
-  
-  
-  .ssic-control__code {
-    flex-grow: 1;
-    position: relative;
-    display: flex;
-    align-content: center;
-    align-items: center;
-  }
-  
-  .ssic-control__code input {
-    display: block;
-    padding: 20px 0;
-    background: none;
-    width: 100%;
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    outline:none;
-  }
+    .ssic-control__remove svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
 
-  
-  .ssic-control__color {
-    padding: 20px;
-    cursor: pointer;
-  }
-  
-  
-  .ssic-control__color div {
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    background-color: #fff;
-  }
-  
-  .ssic-control__remove {
-    padding: 20px;
-    transition: all .2s;
-    cursor:pointer;
-    opacity: 0;
-  }
-  
-  .ssic-control:hover .ssic-control__remove {
-    opacity: 1;
-  }
-  
-  .ssic-control__remove svg {
-    display: block;
-    width: 20px;
-    height: 20px;
-  }
-  
-  .ssic-new-query {
-    color:rgba(255,255,255,1);
-    text-align: center;
-    box-sizing: border-box;
-    padding: 20px;
-    background-color: transparent;
-    transition: all .2s;
-    cursor:pointer;
-  }
-  .ssic-new-query:hover {
-    background-color: rgba(255,255,255,0.1);
-    transition: all .2s;
-  }
-  
-  .colorselect {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 5px;
-    border-radius: 3px;
-    background-color: rgba(0,0,0,0.6);
-    position: absolute;
-    z-index: 10000;
-    top:0;
-    left:0;
-    transform:translate(10px,10px);
-    width: 90px;
-  }
-  
-  .colorselect input {
-    -webkit-appearance: none;
-    width: 30px;
-    height:30px;
-    border:none;
-    border-radius: none;
-    padding:0;
-    margin:0;
-    cursor:pointer;
-  }
-  .colorselect input:checked {
-    /*box-shadow: inset 0 0 0 3px rgba(255,255,255,0.5);*/
-    opacity: 0.1;
-  }
-  
-  .cross {
-    fill: #fff;
-    stroke: #fff;
-    stroke-width: 1;
-  }
-  
-  .timeline {
-    height: 300px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    z-index: 1000;
-    pointer-events: none;
-  }
-  
-  .timeline * {
-    pointer-events: none;
-  }
-  
-  .ct-point {
-    pointer-events: all;
-    cursor: pointer;
-    transition: all .2s ease;
-    transform-origin: center;
-  }
-  
-  .ct-point:hover {
-    stroke-width: 20px;
-  }
-  
-  .ct-point.focus {
-    stroke-width: 20px;
-  }
-  
-  .current-year {
-    position: fixed;
-    left: 50px;
-    bottom: 57px;
-    font-weight: 700;
-    font-size: 32px;
-    color: #fff;
-    letter-spacing: 2px;
-    z-index: 10000;
-  }
-  
-  .leaflet-touch .leaflet-bar {border:none}
-  
-  .leaflet-bar a {
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    appearance: none;
-    color: #fff;
-    background: none;
-    border: none;
-    font-size: 32px;
-    padding: 10px;
-  }
+    .ssic-new-query {
+      color: rgba(255, 255, 255, 1);
+      text-align: center;
+      box-sizing: border-box;
+      padding: 20px;
+      background-color: transparent;
+      transition: all .2s;
+      cursor: pointer;
+    }
 
-  .leaflet-bar a:hover {
-    background: none;
-    color: #fff;
-    border: none;
-  }
-  
-  .leaflet-bar {
-    border: none;
-    box-shadow: none;
-  }
-  
-  .ct-label {
-    fill: rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.4);
-  }
-  
-  foreignObject[y="270"] {
-    opacity: 0;
-  }
-  
-  foreignObject[y="270"]:nth-child(10n) {
-    opacity: 1;
-  }
-  
-  .leaflet-touch .leaflet-bar a {
-    background: none;
-    color: #fff;
-    font-size: 32px;
-    padding: 10px;
-    border: none;
-  }
-  
-  .leaflet-top .leaflet-control {
-    margin-top: 5px;
-  }
-  .leaflet-left .leaflet-control {
-    margin-left: 5px;
-  }
-  .leaflet-control-pause {
-    opacity: .5;
-  }
-  
-</style>  
+    .ssic-new-query:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all .2s;
+    }
 
+    .colorselect {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 5px;
+      border-radius: 3px;
+      background-color: rgba(0, 0, 0, 0.6);
+      position: absolute;
+      z-index: 10000;
+      top: 0;
+      left: 0;
+      transform: translate(10px, 10px);
+      width: 90px;
+    }
 
-<div id="app"></div>
-<div id="app2"></div>
-<div id="app3"></div>
+    .colorselect input {
+      -webkit-appearance: none;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
 
-<script>
-$(function () {
-  
-  createMap('app',{
-    lat:1.3585563850639484, 
-    lon: 103.79559874534608, 
-    zoom: 12,
-    controls:true
-  },[
-      {q:64,color:'rgb(0, 118, 255)', text: 'Finance'},//finance
-      {q:56,color:'rgb(255, 98, 0)', text: 'Restaurants'} //food
-  ],{
-    width: '100%', 
-    height: '100vh'
-  });
+    .colorselect input:checked {
+      /*box-shadow: inset 0 0 0 3px rgba(255,255,255,0.5);*/
+      opacity: 0.1;
+    }
 
-});
-</script>
+    .cross {
+      fill: #fff;
+      stroke: #fff;
+      stroke-width: 1;
+    }
 
+    .timeline {
+      height: 300px;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
 
+    .timeline * {
+      pointer-events: none;
+    }
 
+    .ct-point {
+      pointer-events: all;
+      cursor: pointer;
+      transition: all .2s ease;
+      transform-origin: center;
+    }
 
+    .ct-point:hover {
+      stroke-width: 20px;
+    }
 
+    .ct-point.focus {
+      stroke-width: 20px;
+    }
 
+    .current-year {
+      position: fixed;
+      left: 50px;
+      bottom: 57px;
+      font-weight: 700;
+      font-size: 32px;
+      color: #fff;
+      letter-spacing: 2px;
+      z-index: 10000;
+    }
+
+    .leaflet-touch .leaflet-bar {
+      border: none
+    }
+
+    .leaflet-bar a {
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      appearance: none;
+      color: #fff;
+      background: none;
+      border: none;
+      font-size: 32px;
+      padding: 10px;
+    }
+
+    .leaflet-bar a:hover {
+      background: none;
+      color: #fff;
+      border: none;
+    }
+
+    .leaflet-bar {
+      border: none;
+      box-shadow: none;
+    }
+
+    .ct-label {
+      fill: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    foreignObject[y="270"] {
+      opacity: 0;
+    }
+
+    foreignObject[y="270"]:nth-child(10n) {
+      opacity: 1;
+    }
+
+    .leaflet-touch .leaflet-bar a {
+      background: none;
+      color: #fff;
+      font-size: 32px;
+      padding: 10px;
+      border: none;
+    }
+
+    .leaflet-top .leaflet-control {
+      margin-top: 5px;
+    }
+
+    .leaflet-left .leaflet-control {
+      margin-left: 5px;
+    }
+
+    .leaflet-control-pause {
+      opacity: .5;
+    }
+    
+    .intro .leaflet-control-container, 
+    .intro #controls {
+      opacity: 0;
+    }
+    
+    #intro {
+      width: 100vw;
+      max-width: 970px;
+      height: 100vh;
+      padding: 150px;
+      box-sizing: border-box;
+      color: #fff;
+      position: fixed;
+      top:0;
+      left: 0;
+      z-index: 10000;
+    }
+    
+    #run {
+      cursor:pointer;
+      font-size: 24px;
+      padding: 10px 15px;
+      border: 2px solid #fff;
+      display: inline-block;
+      margin-top: 20px
+    }
+    
+    h1 {
+      font-size: 64px;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #ffe859;
+    }
+    
+    p {
+      font-size: 24px;
+      line-height: 37px;
+    }
+    
+  </style>
+</head>
+
+<body>
+
+  <div id="app" class="intro"></div>
+  <div id="intro">
+    <h1>Business Activity&nbsp;Map</h1>
+    <p>Osome mapped the registered addresses of all the companies incorporated in Singapore between 1887 and 2016. See how industries emerged and vanished and what business activities are popular</p>
+    <div id="run">Explore the Map</div>
+  </div>
+
+  <script>
+    $(function() {
+
+      createMap('app', {
+        lat: 1.3585563850639484,
+        lon: 103.79559874534608,
+        zoom: 12,
+        controls: true
+      }, [{
+          q: 64,
+          color: 'rgb(0, 118, 255)',
+          text: 'Finance'
+        }, //finance
+        {
+          q: 56,
+          color: 'rgb(255, 98, 0)',
+          text: 'Restaurants'
+        } //food
+      ], {
+        width: '100%',
+        height: '100vh'
+      });
+
+    });
+  </script>
+</body>
+
+</html>

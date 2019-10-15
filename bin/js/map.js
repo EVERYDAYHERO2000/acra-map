@@ -169,7 +169,7 @@ function createMap(id, options, query, css) {
 
   var myCustomCanvasDraw = function () {
     this.onLayerDidMount = function () {
-      $('#' + id).append(`<div class="spinner"><div class="spinner__inner"></div><div class="spinner__text"></div></div>`);
+      $('#' + id).append(`<div class="spinner"><div class="spinner__inner"></div><div class="spinner__text">Loading</div></div>`);
       console.log('mount')
 
       if (options.controls) {
@@ -198,16 +198,20 @@ function createMap(id, options, query, css) {
 
   myCustomCanvasDraw.prototype = new L.CanvasLayer(); // -- setup prototype 
 
-  var myLayer = new myCustomCanvasDraw();
-  myLayer.addTo(map);
+  $('#run').click(function(){
+    
+    $('#intro').remove();
+    
+    var myLayer = new myCustomCanvasDraw();
+    myLayer.addTo(map);
 
-  setTimeout(function(){
-    loadData(function () {
-      setQuery(query);
-    });
-  },1000);
+    setTimeout(function(){
+      loadData(function () {
+        setQuery(query);
+      });
+    },1000);
 
-  
+  });
 
   //Draw point collection on map 
   function drawQuery(mapQuery, viewInfo) {
@@ -792,8 +796,13 @@ function createMap(id, options, query, css) {
             }
             */
             
+            $('#app').removeClass('intro');
+            
             setTimeout(function(){
               $('.spinner').remove();
+              
+              
+              
             },1000);
           });
           
