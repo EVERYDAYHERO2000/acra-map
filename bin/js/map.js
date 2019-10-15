@@ -105,6 +105,16 @@ function createMap(id, options, query, css){
   
 
 
+  var count = 0;
+
+  const debounce = (func, delay) => {
+    let inDebounce
+    return (function() {
+      clearTimeout(inDebounce)
+      inDebounce = setTimeout(func, delay)
+    })()
+  }
+
   var myCustomCanvasDraw = function () {
     this.onLayerDidMount = function () {
       $('#'+id).append(`<div class="spinner"></div>`);
@@ -125,9 +135,17 @@ function createMap(id, options, query, css){
       this.needRedraw(); // -- call to drawLayer
     };
     this.onDrawLayer = function (viewInfo) {
-      
+      console.log("onDrawLayer", ++count)
       //drawPoint(viewInfo);
+      var timer1 = performance.now();
+
+      // var ctx = viewInfo.canvas.getContext('2d');
+      // ctx.clearRect(0, 0, viewInfo.canvas.width, viewInfo.canvas.height);
+
+      // debounce(() => drawQuery(mapQuery, viewInfo), 1000);
       drawQuery(mapQuery, viewInfo);
+      var timer2 = performance.now();
+      console.log("PERFORMANCE onDrawLayer", timer2 - timer1);
     };
     map.myCustomCanvasDraw = this;
   };
@@ -143,79 +161,87 @@ function createMap(id, options, query, css){
     setQuery(query);
   });
 
-  function drawPoint(viewInfo) {
-    var ctx = viewInfo.canvas.getContext('2d');
-    ctx.clearRect(0, 0, viewInfo.canvas.width, viewInfo.canvas.height);
-
-
-
-    var points = APP.data.points;
-
-    for (var k in points) {
-      var point = points[k];
-
+  function renderPoints(points, color, ctx, viewInfo, callback) {
+    for (var index in points){
+      var point = points[index];
       if (viewInfo.bounds.contains([point.lat, point.lon])) {
-
-        ctx.fillStyle = "rgba(0, 118, 255, 0.36)";
-
-        //console.log(point[l],point[l].lat)
         
-        dot = viewInfo.layer._map.latLngToContainerPoint([point.lat, point.lon]);
+        var opacity = (map._zoom < 14) ? (map._zoom < 5) ? 0.3 : 0.5 : 0.8;
+        
+        /*
+        var rad = ('0.0000'+(''+(i*3)))*1;
+        var offset = (function(x,y,r,i){
+          
+          return {
+            x: x + r * Math.sin(i * 2 * Math.PI / 100),
+            y: y + r * Math.cos(i * 2 * Math.PI / 100)
+          }
+          
+        })(point.lat, point.lon, rad, i);
+        
+        var rnd = getRandomInt(4, 8)
+        var rad = (map._zoom < 12)? (i*rnd)*0.0001 : (i*5)*0.00001;
+        var offset = 50;
+        var s = (i*offset * Math.PI / 100);
+        
+        var lat = point.lat + rad * Math.sin(s);
+        var lon = point.lon + rad * Math.cos(s);
+        */
+        
+        ctx.fillStyle = RgbToRgba( color, opacity );
+        var dot = viewInfo.layer._map.latLngToContainerPoint([point.lat, point.lon]);
         ctx.beginPath();
-
-
         ctx.arc(dot.x, dot.y, size[map._zoom].s, 0, Math.PI * 2);
-
         ctx.fill();
-
       }
-
     }
-    ctx.closePath();
+
+    if (callback) callback();
   }
   
   //Draw point collection on map 
   function drawQuery(mapQuery, viewInfo){
+    var countMax = 0;
+    var newPoints = mapQuery.reduce((acc, curValue) => {
+      const points = curValue.points;
+
+      var iteratorMax = Math.ceil(Object.keys(points).length / 500);
+      console.log("ITERATOR LEN", iterator);
+      countMax += iteratorMax;
+      var iterator = 0;
+
+      // TODO: создать новый объект mapQuery, где верхнеуровневые ключи не SSIC коды, а чанки по 500-1000 точек
+      while (iterator <= iteratorMax, iterator++) {
+        
+      }
+      
+      return { ...acc, ...points };
+    }, {})
+
+    console.log("WHAT IS", newPoints);
+
     var ctx = viewInfo.canvas.getContext('2d');
     ctx.clearRect(0, 0, viewInfo.canvas.width, viewInfo.canvas.height);
     
-    for (var i = mapQuery.length; i--;){
-      for (var p in mapQuery[i].points){
-        var point = mapQuery[i].points[p];
-        if (viewInfo.bounds.contains([point.lat, point.lon])) {
-          
-          var opacity = (map._zoom < 14) ? (map._zoom < 5) ? 0.3 : 0.5 : 0.8;
-          
-          /*
-          var rad = ('0.0000'+(''+(i*3)))*1;
-          var offset = (function(x,y,r,i){
-            
-            return {
-              x: x + r * Math.sin(i * 2 * Math.PI / 100),
-              y: y + r * Math.cos(i * 2 * Math.PI / 100)
-            }
-            
-          })(point.lat, point.lon, rad, i);
-          
-          var rnd = getRandomInt(4, 8)
-          var rad = (map._zoom < 12)? (i*rnd)*0.0001 : (i*5)*0.00001;
-          var offset = 50;
-          var s = (i*offset * Math.PI / 100);
-          
-          var lat = point.lat + rad * Math.sin(s);
-		      var lon = point.lon + rad * Math.cos(s);
-          */
-          
-          ctx.fillStyle = RgbToRgba( mapQuery[i].color, opacity );
-          var dot = viewInfo.layer._map.latLngToContainerPoint([point.lat, point.lon]);
-          ctx.beginPath();
-          ctx.arc(dot.x, dot.y, size[map._zoom].s, 0, Math.PI * 2);
-          ctx.fill();
+    function callback(i) {
+      // TODO: прокидывать цвет SSIC кода, когда разбито по чанкам
+      return function() {
+        i--;
+        if (i < 0) {
+          ctx.closePath();
+          return;
         }
+        setTimeout(() => renderPoints(mapQuery[i].points, mapQuery[i].color, ctx, viewInfo, callback(i)), 0)
       }
     }
-         
-    ctx.closePath();
+
+    var i = mapQuery.length - 1;
+    if (i > 0) {
+      var color = mapQuery[i].color;
+
+      renderPoints(mapQuery[i].points, color, ctx, viewInfo, callback(i, ctx))
+    }
+      
     /*
     var filter = new MedianFilter();
     var imageData = ctx.getImageData(0, 0, viewInfo.canvas.width, viewInfo.canvas.height);
@@ -226,7 +252,7 @@ function createMap(id, options, query, css){
 
   //Create query hash collection
   function setQuery(e){
-   
+    console.log("setQuery");
     e = e || query;
     
     var ssic = APP.hash.ssic;
@@ -243,13 +269,11 @@ function createMap(id, options, query, css){
         points: {}
       });
     }
-    
-    
-    
 
     var regex = new RegExp( tempRegex.join('|'), 'g');
     queryRegex = regex;
     
+    // TODO: создавай вместо объекта points сразу массив
     for(var code in ssic){
       if ( code.search(regex) + 1 ){
         for (var i=0; i < tempQuery.length; i++){
@@ -267,7 +291,8 @@ function createMap(id, options, query, css){
     //console.log(tempQuery)
     mapQuery = tempQuery;
     map.myCustomCanvasDraw.needRedraw();
-    createGraph();
+    
+    setTimeout(createGraph, 0);
   }
   
   
@@ -326,10 +351,7 @@ function createMap(id, options, query, css){
     $('.graph-css').remove();
     $('head').append(`<style class="graph-css">${newCSSRule}</style>`)
   }
-  
-  
-  
-  
+
   map.setQuery = setQuery;
   
   //Create interface
@@ -504,7 +526,7 @@ function createMap(id, options, query, css){
     if (!APP.data.years.length){
   
     dataRequest('data/acra-years.csv', function(_years) {
-        console.log('Years loaded');
+        console.log('Years loaded1');
         csvToObject(_years, function (a) {
           APP.data.years.push(a.year);
           APP.hash.regdates[a.year] = {};
@@ -523,13 +545,13 @@ function createMap(id, options, query, css){
   dataRequest('data/points.csv', function(_points) {
       console.log('Points loaded');
       csvToObject(_points, function (a) {
-        a.id *= 1;
-        a.lat *= 1;
-        a.lon *= 1;
+        a.id = Number(a.id);
+        a.lat = Number(a.lat);
+        a.lon = Number(a.lon);
         APP.data.points[a.id] = a;
         APP.hash.points[a.id] = [];
       }, function () {
-        console.log('Points built');
+        console.log('Points built', Object.keys(APP.data.points).length);
       });
   });
   
@@ -565,15 +587,12 @@ function createMap(id, options, query, css){
   dataRequest('data/acra-live.csv', function(_acra) {
       console.log('Acra loaded');
       csvToObject(_acra, function (a) {
-        
-       
-          
+
         //a.local = (a.local) ? 1 : 0;
         a.ssic_1 = (a.ssic_1 in APP.data.ssic) ? APP.data.ssic[a.ssic_1] : {ssic: "null"};
         a.ssic_2 = (a.ssic_2 in APP.data.ssic) ? APP.data.ssic[a.ssic_2] : {ssic:"null"};
         a.point = APP.data.points[a.point];
         APP.data.acra.push(a);
-
         
         //hashing
         
@@ -594,8 +613,6 @@ function createMap(id, options, query, css){
         
         APP.hash.ssicByYears[a.reg_date][a.ssic_1.ssic] = pushData(APP.hash.ssicByYears[a.reg_date][a.ssic_1.ssic],a);
         APP.hash.ssicByYears[a.reg_date][a.ssic_2.ssic] = pushData(APP.hash.ssicByYears[a.reg_date][a.ssic_2.ssic],a);
-        
-        
       }, function () {
         console.log('Acra built');
         
