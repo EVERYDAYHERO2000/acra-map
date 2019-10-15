@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start:dev": "webpack-dev-server",
     "ssic": "node get-ssic.js",
     "points": "node get-points.js",
-    "addresstopoint" : "node address-to-pointId.js",
-    "acra" : "node acra.js",
-    "acralive" : "node acra-live.js",
+    "addresstopoint": "node address-to-pointId.js",
+    "acra": "node acra.js",
+    "acralive": "node acra-live.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -20,6 +21,9 @@
     "node-geocoder": "^3.22.0"
   },
   "devDependencies": {
-    "csv-array": "0.0.22"
+    "csv-array": "0.0.22",
+    "webpack": "^4.41.1",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
   }
 }
