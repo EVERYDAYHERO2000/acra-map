@@ -17,7 +17,7 @@
   "dependencies": {
     "convert-array-to-csv": "^1.0.4",
     "convert-csv-to-array": "^1.0.2",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^3.1.1",
     "node-geocoder": "^3.22.0"
   },
   "devDependencies": {
