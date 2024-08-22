@@ -108,7 +108,7 @@ $(function () {
 
   var map = L.map("map");
   APP.map = map;
-  L.tileLayer("https://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}").addTo(map);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png").addTo(map);
   map.setView([1.3585563850639484, 103.79559874534608], 12);
   
 
