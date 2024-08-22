@@ -106,11 +106,7 @@ function createMap(id, options, query, css) {
   var map = L.map(container);
   APP.map = APP.map || [];
   APP.map.push(map);
-  L.tileLayer("https://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/{time}/{tilematrixset}{maxZoom}/{z}/{y}/{x}.{format}", {
-	format: 'jpg',
-	time: '',
-	tilematrixset: 'GoogleMapsCompatible_Level'
-  }).addTo(map);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png").addTo(map);
   map.setView([options.lat, options.lon], options.zoom);
 
   map.attributionControl.setPosition('bottomleft').addAttribution('osome');
